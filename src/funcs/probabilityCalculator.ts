@@ -9,6 +9,23 @@ export const calculateInitialHandProbability = (
   handSize: number,
   minTarget: number,
 ): number => {
+  // Input validation
+  if (deckSize < 0 || targetCards < 0 || handSize < 0 || minTarget < 0) {
+    throw new Error("All parameters must be non-negative");
+  }
+  if (targetCards > deckSize) {
+    throw new Error("Target cards cannot exceed deck size");
+  }
+  if (handSize > deckSize) {
+    throw new Error("Hand size cannot exceed deck size");
+  }
+  if (minTarget > targetCards) {
+    return 0; // Impossible to draw more targets than exist in deck
+  }
+  if (minTarget > handSize) {
+    return 0; // Impossible to draw more cards than hand size
+  }
+
   return cumulativeProbability(deckSize, targetCards, handSize, minTarget);
 };
 

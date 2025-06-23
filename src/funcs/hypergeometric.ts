@@ -6,6 +6,17 @@ export const hypergeometricProbability = (
   n: number,
   k: number,
 ): number => {
+  // Input validation
+  if (N < 0 || K < 0 || n < 0 || k < 0) {
+    throw new Error("All parameters must be non-negative");
+  }
+  if (K > N) {
+    throw new Error("Success states (K) cannot exceed population size (N)");
+  }
+  if (n > N) {
+    throw new Error("Sample size (n) cannot exceed population size (N)");
+  }
+
   if (k > K || k > n || n - k > N - K) {
     return 0;
   }
