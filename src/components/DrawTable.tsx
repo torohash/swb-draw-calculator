@@ -1,16 +1,7 @@
 import type React from "react";
+import type { DrawTableProps } from "../types/drawTable";
 
-interface DrawTableProps {
-  from: number;
-  to: number;
-}
-
-const DrawTable: React.FC<DrawTableProps> = ({ from, to }) => {
-  const rows = [];
-  for (let i = from; i <= to; i++) {
-    rows.push(i);
-  }
-
+const DrawTable: React.FC<DrawTableProps> = ({ data }) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-300">
@@ -20,24 +11,42 @@ const DrawTable: React.FC<DrawTableProps> = ({ from, to }) => {
               ドロー枚数
             </th>
             <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-              確率 (%)
+              なし
             </th>
             <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-              期待値
+              1枚交換
+            </th>
+            <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              2枚交換
+            </th>
+            <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              3枚交換
+            </th>
+            <th className="px-6 py-3 border-b-2 border-gray-300 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+              4枚交換
             </th>
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {rows.map((drawCount) => (
-            <tr key={drawCount} className="hover:bg-gray-50">
+          {data.map((row) => (
+            <tr key={row.drawCount} className="hover:bg-gray-50">
               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                {drawCount}枚
+                {row.drawCount}枚
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                --
+                {row.none.toFixed(2)}%
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                --
+                {row.exchange1.toFixed(2)}%
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {row.exchange2.toFixed(2)}%
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {row.exchange3.toFixed(2)}%
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {row.exchange4.toFixed(2)}%
               </td>
             </tr>
           ))}

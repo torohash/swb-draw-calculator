@@ -7,7 +7,7 @@ function App() {
       <h1 className="text-3xl font-bold mb-6 text-center">
         シャドウバース ドロー確率シミュレーター
       </h1>
-      <DrawTable from={1} to={10} />
+      <DrawTable data={[]} />
     </div>
   );
 }
