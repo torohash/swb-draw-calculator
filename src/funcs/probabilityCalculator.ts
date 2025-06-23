@@ -1,3 +1,4 @@
+import { MulliganType } from "../types/drawTable";
 import {
   cumulativeProbability,
   hypergeometricProbability,
@@ -34,10 +35,15 @@ export const calculateMulliganProbability = (
   targetCards: number,
   exchangeCount: number,
   minTarget: number,
+  mulliganType: MulliganType = MulliganType.WITHOUT_REPLACEMENT,
 ): number => {
   if (exchangeCount === 0) {
     return calculateInitialHandProbability(deckSize, targetCards, 4, minTarget);
   }
+
+  // 最適なマリガン戦略を仮定：
+  // - 目的のカードが minTarget 枚以上ある場合は交換しない
+  // - 目的のカードが minTarget 枚未満の場合は、目的でないカードを交換
 
   let totalProbability = 0;
   const initialHandSize = 4;
@@ -56,12 +62,30 @@ export const calculateMulliganProbability = (
 
     if (initialProb === 0) continue;
 
-    const kept = initialHandSize - exchangeCount;
-    const keptTargets = Math.min(initialTargets, kept);
+    // すでに必要枚数を引いている場合
+    if (initialTargets >= minTarget) {
+      totalProbability += initialProb;
+      continue;
+    }
 
-    const newDeckSize = deckSize - kept;
-    const newTargetCards = targetCards - keptTargets;
-    const newDraws = exchangeCount;
+    // 交換戦略: 目的でないカードを優先的に交換
+    const nonTargetsInHand = initialHandSize - initialTargets;
+    const actualExchangeCount = Math.min(exchangeCount, nonTargetsInHand);
+
+    if (actualExchangeCount === 0) {
+      // 交換できない（すべて目的のカード）
+      totalProbability += initialProb * (initialTargets >= minTarget ? 1 : 0);
+      continue;
+    }
+
+    // 交換後の計算
+    const keptTargets = initialTargets; // 目的のカードはキープ
+    const newDeckSize =
+      mulliganType === MulliganType.WITH_REPLACEMENT
+        ? deckSize
+        : deckSize - initialHandSize;
+    const newTargetCards = targetCards - initialTargets;
+    const newDraws = actualExchangeCount;
 
     let probAfterMulligan = 0;
 
@@ -90,67 +114,131 @@ export const calculateDrawProbabilityAtTurn = (
   turn: number,
   mulliganPattern: number,
   minTarget: number,
+  mulliganType: MulliganType = MulliganType.WITHOUT_REPLACEMENT,
 ): number => {
+  // For turn 0, use mulligan probability
   if (turn === 0) {
     return calculateMulliganProbability(
       deckSize,
       targetCards,
       mulliganPattern,
       minTarget,
+      mulliganType,
     );
   }
 
-  let cumulativeProb = 0;
+  // For turns > 0, we need to consider mulligan results
+  let totalProbability = 0;
 
-  for (let foundBefore = 0; foundBefore < minTarget; foundBefore++) {
-    const probFoundBefore = calculateExactlyKAtTurn(
+  // Consider all possible outcomes after mulligan
+  for (
+    let targetsAfterMulligan = 0;
+    targetsAfterMulligan <= Math.min(targetCards, 4);
+    targetsAfterMulligan++
+  ) {
+    // Probability of having exactly targetsAfterMulligan after mulligan
+    const probAfterMulligan = calculateExactTargetsAfterMulligan(
       deckSize,
       targetCards,
-      turn - 1,
       mulliganPattern,
-      foundBefore,
+      targetsAfterMulligan,
+      mulliganType,
     );
 
-    if (probFoundBefore === 0) continue;
+    if (probAfterMulligan === 0) continue;
 
-    const remainingDeck = deckSize - 4 - (turn - 1);
-    const remainingTargets = targetCards - foundBefore;
-    const needed = minTarget - foundBefore;
+    // If we already have enough targets, probability is 1
+    if (targetsAfterMulligan >= minTarget) {
+      totalProbability += probAfterMulligan;
+    } else {
+      // Calculate probability of drawing the remaining needed targets
+      const remainingDeck = deckSize - 4;
+      const remainingTargets = targetCards - targetsAfterMulligan;
+      const additionalDraws = turn;
+      const neededTargets = minTarget - targetsAfterMulligan;
 
-    const probDrawNeeded =
-      remainingTargets >= needed && remainingDeck > 0
-        ? remainingTargets / remainingDeck
-        : 0;
+      // Probability of drawing at least neededTargets in additionalDraws
+      const probDrawNeeded = cumulativeProbability(
+        remainingDeck,
+        remainingTargets,
+        additionalDraws,
+        neededTargets,
+      );
 
-    cumulativeProb += probFoundBefore * probDrawNeeded;
+      totalProbability += probAfterMulligan * probDrawNeeded;
+    }
   }
 
-  cumulativeProb += calculateDrawProbabilityAtTurn(
-    deckSize,
-    targetCards,
-    turn - 1,
-    mulliganPattern,
-    minTarget,
-  );
-
-  return cumulativeProb;
+  return totalProbability;
 };
 
-const calculateExactlyKAtTurn = (
+const calculateExactTargetsAfterMulligan = (
   deckSize: number,
   targetCards: number,
-  turn: number,
-  mulliganPattern: number,
-  exactK: number,
+  exchangeCount: number,
+  exactTargets: number,
+  mulliganType: MulliganType = MulliganType.WITHOUT_REPLACEMENT,
 ): number => {
-  if (turn === 0) {
-    return (
-      hypergeometricProbability(deckSize, targetCards, 4, exactK) *
-      (mulliganPattern === 0 ? 1 : 0)
-    );
+  if (exchangeCount === 0) {
+    // No mulligan, just initial hand probability
+    return hypergeometricProbability(deckSize, targetCards, 4, exactTargets);
   }
 
-  return 0;
+  let totalProbability = 0;
+  const initialHandSize = 4;
+
+  // Consider all possible initial hand compositions
+  for (
+    let initialTargets = 0;
+    initialTargets <= Math.min(targetCards, initialHandSize);
+    initialTargets++
+  ) {
+    const initialProb = hypergeometricProbability(
+      deckSize,
+      targetCards,
+      initialHandSize,
+      initialTargets,
+    );
+
+    if (initialProb === 0) continue;
+
+    // Optimal mulligan strategy
+    const nonTargetsInHand = initialHandSize - initialTargets;
+    const actualExchangeCount = Math.min(exchangeCount, nonTargetsInHand);
+
+    if (actualExchangeCount === 0) {
+      // No cards to exchange, final count is initial count
+      if (initialTargets === exactTargets) {
+        totalProbability += initialProb;
+      }
+      continue;
+    }
+
+    // Calculate probability of ending with exactly exactTargets
+    const keptTargets = initialTargets;
+    const newDeckSize =
+      mulliganType === MulliganType.WITH_REPLACEMENT
+        ? deckSize
+        : deckSize - initialHandSize;
+    const newTargetCards = targetCards - initialTargets;
+    const newDraws = actualExchangeCount;
+    const neededNewTargets = exactTargets - keptTargets;
+
+    if (neededNewTargets < 0 || neededNewTargets > newDraws) {
+      continue; // Impossible to achieve exactTargets
+    }
+
+    const probNewTargets = hypergeometricProbability(
+      newDeckSize,
+      newTargetCards,
+      newDraws,
+      neededNewTargets,
+    );
+
+    totalProbability += initialProb * probNewTargets;
+  }
+
+  return totalProbability;
 };
 
 export interface DrawProbabilityResult {
@@ -167,6 +255,7 @@ export const calculateDrawProbability = (
   from: number,
   to: number,
   minTarget: number,
+  mulliganType: MulliganType = MulliganType.WITHOUT_REPLACEMENT,
 ): DrawProbabilityResult[] => {
   const results: DrawProbabilityResult[] = [];
 
@@ -179,6 +268,7 @@ export const calculateDrawProbability = (
           turn,
           0,
           minTarget,
+          mulliganType,
         ) * 100,
       exchange1:
         calculateDrawProbabilityAtTurn(
@@ -187,6 +277,7 @@ export const calculateDrawProbability = (
           turn,
           1,
           minTarget,
+          mulliganType,
         ) * 100,
       exchange2:
         calculateDrawProbabilityAtTurn(
@@ -195,6 +286,7 @@ export const calculateDrawProbability = (
           turn,
           2,
           minTarget,
+          mulliganType,
         ) * 100,
       exchange3:
         calculateDrawProbabilityAtTurn(
@@ -203,6 +295,7 @@ export const calculateDrawProbability = (
           turn,
           3,
           minTarget,
+          mulliganType,
         ) * 100,
       exchange4:
         calculateDrawProbabilityAtTurn(
@@ -211,6 +304,7 @@ export const calculateDrawProbability = (
           turn,
           4,
           minTarget,
+          mulliganType,
         ) * 100,
     };
     results.push(result);

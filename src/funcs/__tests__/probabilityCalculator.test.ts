@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MulliganType } from "../../types/drawTable";
 import {
   calculateDrawProbability,
   calculateDrawProbabilityAtTurn,
@@ -66,8 +67,8 @@ describe("calculateMulliganProbability", () => {
     const prob4 = calculateMulliganProbability(40, 3, 4, 1);
 
     expect(prob0).toBeCloseTo(0.2773, 4);
-    // Full mulligan is same as initial because current implementation doesn't do optimal mulligan
-    expect(prob4).toBeCloseTo(0.2773, 4);
+    // With optimal mulligan strategy, full mulligan gives higher probability
+    expect(prob4).toBeCloseTo(0.498, 4);
   });
 
   it("should calculate all mulligan patterns", () => {
@@ -82,6 +83,35 @@ describe("calculateMulliganProbability", () => {
       expect(prob).toBeGreaterThan(0);
       expect(prob).toBeLessThanOrEqual(1);
     });
+  });
+
+  it("should handle WITH_REPLACEMENT mulligan type", () => {
+    const prob0 = calculateMulliganProbability(
+      40,
+      3,
+      0,
+      1,
+      MulliganType.WITH_REPLACEMENT,
+    );
+    const prob4WithReplacement = calculateMulliganProbability(
+      40,
+      3,
+      4,
+      1,
+      MulliganType.WITH_REPLACEMENT,
+    );
+    const prob4WithoutReplacement = calculateMulliganProbability(
+      40,
+      3,
+      4,
+      1,
+      MulliganType.WITHOUT_REPLACEMENT,
+    );
+
+    expect(prob0).toBeCloseTo(0.2773, 4);
+    // WITH_REPLACEMENT should give different (lower) probability than WITHOUT_REPLACEMENT
+    expect(prob4WithReplacement).toBeLessThan(prob4WithoutReplacement);
+    expect(prob4WithReplacement).toBeCloseTo(0.4777, 4); // Approximate value for WITH_REPLACEMENT
   });
 
   it("should handle edge cases", () => {
@@ -146,6 +176,18 @@ describe("calculateDrawProbability", () => {
       expect(results[i].exchange4).toBeGreaterThanOrEqual(
         results[i - 1].exchange4,
       );
+    }
+  });
+
+  it("should show different probabilities for different mulligan patterns", () => {
+    const results = calculateDrawProbability(40, 3, 1, 5, 1);
+
+    for (const result of results) {
+      // More exchanges should give higher probability
+      expect(result.exchange1).toBeGreaterThan(result.none);
+      expect(result.exchange2).toBeGreaterThan(result.exchange1);
+      expect(result.exchange3).toBeGreaterThan(result.exchange2);
+      expect(result.exchange4).toBeGreaterThan(result.exchange3);
     }
   });
 

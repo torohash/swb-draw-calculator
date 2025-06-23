@@ -1,3 +1,8 @@
+export enum MulliganType {
+  WITHOUT_REPLACEMENT = "without_replacement", // 戻さない
+  WITH_REPLACEMENT = "with_replacement", // 戻す
+}
+
 export interface DrawTableRow {
   drawCount: number;
   none: number;
