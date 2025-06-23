@@ -4,6 +4,7 @@ import { defineConfig } from "vite";
 // https://vite.dev/config/
 export default defineConfig({
 	plugins: [react()],
+	base: "/swb-draw-calculator/",
 	server: {
 		port: 3000,
 		strictPort: true, // ポートが被っていたらエラー
