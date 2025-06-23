@@ -1,63 +1,63 @@
 {
-  "name": "Node Development",
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
-  "customizations": {
-    "vscode": {
-      "settings": {
-        "terminal.integrated.defaultProfile.linux": "bash",
-        "terminal.integrated.profiles.linux": {
-          "bash": {
-            "path": "/bin/bash"
-          }
-        },
-        "workbench.iconTheme": "material-icon-theme",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-          "quickfix.biome": "explicit",
-          "source.organizeImports.biome": "explicit"
-        },
-        "[typescript]": {
-          "editor.defaultFormatter": "biomejs.biome",
-          "editor.tabSize": 2
-        },
-        "[javascript]": {
-          "editor.defaultFormatter": "biomejs.biome",
-          "editor.tabSize": 2
-        },
-        "[json]": {
-          "editor.defaultFormatter": "biomejs.biome",
-          "editor.tabSize": 2
-        },
-        "[jsonc]": {
-          "editor.defaultFormatter": "biomejs.biome",
-          "editor.tabSize": 2
-        }
-      },
-      "extensions": [
-        "biomejs.biome",
-        "streetsidesoftware.code-spell-checker",
-        "oderwat.indent-rainbow",
-        "christian-kohler.path-intellisense",
-        "shardulm94.trailing-spaces",
-        "eamodio.gitlens",
-        "donjayamanne.githistory",
-        "mhutchie.git-graph",
-        "gruntfuggly.todo-tree",
-        "pkief.material-icon-theme"
-      ]
-    }
-  },
-  "forwardPorts": [3000],
-  "remoteUser": "node",
-  "updateRemoteUserUID": true,
-  "workspaceMount": "source=${localWorkspaceFolder},target=/opt/app,type=bind,consistency=cached",
-  "workspaceFolder": "/opt/app",
-  "mounts": [
-    "source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
-  ],
-  "features": {
-    "ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
-  }
+	"name": "Node Development",
+	"build": {
+		"dockerfile": "Dockerfile"
+	},
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/bin/bash"
+					}
+				},
+				"workbench.iconTheme": "material-icon-theme",
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"quickfix.biome": "explicit",
+					"source.organizeImports.biome": "explicit"
+				},
+				"[typescript]": {
+					"editor.defaultFormatter": "biomejs.biome",
+					"editor.tabSize": 2
+				},
+				"[javascript]": {
+					"editor.defaultFormatter": "biomejs.biome",
+					"editor.tabSize": 2
+				},
+				"[json]": {
+					"editor.defaultFormatter": "biomejs.biome",
+					"editor.tabSize": 2
+				},
+				"[jsonc]": {
+					"editor.defaultFormatter": "biomejs.biome",
+					"editor.tabSize": 2
+				}
+			},
+			"extensions": [
+				"biomejs.biome",
+				"streetsidesoftware.code-spell-checker",
+				"oderwat.indent-rainbow",
+				"christian-kohler.path-intellisense",
+				"shardulm94.trailing-spaces",
+				"eamodio.gitlens",
+				"donjayamanne.githistory",
+				"mhutchie.git-graph",
+				"gruntfuggly.todo-tree",
+				"pkief.material-icon-theme"
+			]
+		}
+	},
+	"forwardPorts": [3000],
+	"remoteUser": "node",
+	"updateRemoteUserUID": true,
+	"workspaceMount": "source=${localWorkspaceFolder},target=/opt/app,type=bind,consistency=cached",
+	"workspaceFolder": "/opt/app",
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached,readonly"
+	],
+	"features": {
+		"ghcr.io/anthropics/devcontainer-features/claude-code:1.0": {}
+	}
 }

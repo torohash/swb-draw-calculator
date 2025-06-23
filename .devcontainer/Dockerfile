@@ -5,6 +5,9 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
+RUN corepack enable && \
+    corepack prepare pnpm@latest --activate
+
 # biomeインストール
 RUN npm install -g @biomejs/biome
 
