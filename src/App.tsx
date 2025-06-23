@@ -1,5 +1,5 @@
 import "./App.css";
-import DrawTable from "./components/DrawTable";
+import { DrawTable } from "./components/DrawTable";
 
 function App() {
   return (

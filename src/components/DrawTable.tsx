@@ -1,7 +1,7 @@
 import type React from "react";
 import type { DrawTableProps } from "../types/drawTable";
 
-const DrawTable: React.FC<DrawTableProps> = ({ data }) => {
+export const DrawTable: React.FC<DrawTableProps> = ({ data }) => {
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-300">
@@ -55,5 +55,3 @@ const DrawTable: React.FC<DrawTableProps> = ({ data }) => {
     </div>
   );
 };
-
-export default DrawTable;
