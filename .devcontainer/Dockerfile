@@ -5,11 +5,7 @@ RUN apt update && \
     apt clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN corepack enable && \
-    corepack prepare pnpm@latest --activate
-
-# biomeインストール
-RUN npm install -g @biomejs/biome
+RUN npm install -g pnpm @biomejs/biome
 
 # Gitのタブ補完有効化と__git_ps1コマンドの利用
 RUN echo "source /usr/share/bash-completion/completions/git" >> /home/node/.bashrc && \
