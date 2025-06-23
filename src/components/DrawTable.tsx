@@ -2,6 +2,15 @@ import type React from "react";
 import type { DrawTableProps } from "../types/drawTable";
 
 export const DrawTable: React.FC<DrawTableProps> = ({ data }) => {
+  // 確率の表示形式を決定する関数
+  const formatProbability = (value: number): string => {
+    if (value >= 99.99) {
+      // 99.99%以上の場合は小数点第4位まで表示
+      return `${value.toFixed(4)}%`;
+    }
+    // それ以外は小数点第2位まで表示
+    return `${value.toFixed(2)}%`;
+  };
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white border border-gray-300">
@@ -34,19 +43,19 @@ export const DrawTable: React.FC<DrawTableProps> = ({ data }) => {
                 {row.drawCount}枚
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {row.none.toFixed(2)}%
+                {formatProbability(row.none)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {row.exchange1.toFixed(2)}%
+                {formatProbability(row.exchange1)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {row.exchange2.toFixed(2)}%
+                {formatProbability(row.exchange2)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {row.exchange3.toFixed(2)}%
+                {formatProbability(row.exchange3)}
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                {row.exchange4.toFixed(2)}%
+                {formatProbability(row.exchange4)}
               </td>
             </tr>
           ))}
